@@ -3,9 +3,9 @@
 #10.01.20
 #sort bam files, extract fastq and generate QC-reports with fastqc
 
-DIR="$1"			# input
-OUT="$2"			# output dir
-OUT_QC="$3"			# outdir QC reports
+DIR="$1"			# input directory containing bam file
+OUT="$2"			# output dir for fastq files
+OUT_QC="$3"			# outdir quality reports
 cd ${DIR}
 
 #sort and extract
