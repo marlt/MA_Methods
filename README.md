@@ -3,7 +3,8 @@ This file shall supplement the Master's Thesis ``ENTER TITLE`` with detailed des
 The parameter functionality of utilized tools is described within the custom scripts, if present. Custom scripts implementing command line interfaces (CLI) are explained in the text. If not described further, default tool settings apply.
 
 The tools had been used in a conda environment for better version control. 
-
+- ADD AN TABEL OF CONTENTS
+- 
 ## Summary Workflow Description
 - TO DESCRIBE: How were the workflow graphics prepared?
 - 
@@ -75,5 +76,47 @@ OUT="/data/fass2/reads/max_crass/homo_sapiens_neanderthalensis_altai_unmapped/fa
 QCDIR="/data/mahlzeitlocal/projects/ma_neander_assembly/anc_virus_MA/qual_reports/trimmed"
 
 <path_to_script>/trimming.sh "${INDIR}" "${OUT}" "${QCDIR}"
+```
+Note, that all unpaired trimmed pair1 or pair2 reads had been move to the quality failed directory since they did not meet quality criteria in manual check up.
+
+# K-mer based Read Classification
+
+The script ``clark_classification.sh`` wraps all steps for the k-mer classification with CLARK. Thereby it performs the following steps:
+1. Database download (set_targets.sh)
+2. Database creation, calculation of k-mer spaces and classification (classify_metagenome.sh)
+3. Abundance estimation and conversion into KRONA output format (estimate_abundance.sh)
+4. Abundance visualization in multi-layered pie charts (ktImportTaxonomy)
+
+Steps 2. - 4. had been applied to every quality enriched fastq file. Thereby, Paired-end and single-end files had been conducted separately.
+For all three k-mers tested, the confidence threshold was set to the lowest possible of 0.5. The value is simply calculated by $\frac{hitcount1 + hitcount2}{hitcount1}$ (SOURCE). A low confidence score therefore might lead to lower sensitivity and thus to classification of database related unknown organisms (possibly ancient).
+The script can be applied as follows:
+```
+<path_to_script>/clark_classification.sh
+```
+``ktImportTaxonomy`` generates the pie charts in interactive file of html format that can be visited using standard web browsers (firefox, chrome, vivaldi).  
+
+# Read Binning
+
+Each line of the  ``classify_metagenome.sh`` output assigns a read header identifier to the taxonomic identifier (NCBI TaxID) of the first two hits. The script ``TaxID_sci_names.py``  traces back every TaxID to its domain and output a comma separated file in the following format:
+
+```
+read_header_ID,TaxID,taxon_path
+
+# for example:
+SN928_0068_BB022WACXX:1:1103:19311:49395,1982588,Edwardsiella virus KF1 > Kafunavirus > Podoviridae > Caudovirales > Viruses
+```
+The taxonomic paths were generated using the ``names.dmp`` and ``nodes.dmp`` files from the NCBI taxonomy structure [taxdumb.tar.gz](ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz). The functions ``get_dicts`` and ``get_tax_path`` were adapted from a custom python script provided by Florian Mock (Thanks!).
+Per classification output, three csv tables had been generated collecting the viral, the bacterial and non-assigned reads (NA reads). The script is used in a for loop over all CLARK assignments:
+
+```
+# iterate over all output csv files and get phylogenetic path
+for file in <path_to_classify_metagenome.sh_outputdir>/*.csv; do echo ${file}; ./scripts/TaxID_sci_names.py ${file}; done
+```
+
+Secondly, the reads need to be extracted from the bulk (quality enriched fastq files). This is achieved using two files: ``extract_reads_dict.py`` and ``fromdict_extract_reads.sh``. For execution, the shell script is enough since it utilizes the python script. The first named generates one multi-fastq file per CLARK output file. Those are subsequently merged into three files per bin: pair1, pair2 and allSE. Just call the script simply like this:
+
+```
+# all paths are specified in the file
+<path-to-script>/fromdict_extract_reads.sh
 ```
 
