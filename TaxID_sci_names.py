@@ -126,7 +126,7 @@ with open(file, "r") as infile:
 # write NA, viral and bacterial files 
 print("Write viral reads")
 with open(f'{path}/{basename}_viral_hit1.csv', 'w') as vfile:
-	for key in viral_reads.keys():
+for key in viral_reads.keys():
 		vfile.write(f'{key},{viral_reads[key][0]},{viral_reads[key][1]}\n')
 
 print("Write bacterial reads")

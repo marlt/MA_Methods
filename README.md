@@ -87,7 +87,7 @@ The script ``clark_classification.sh`` wraps all steps for the k-mer classificat
 3. Abundance estimation and conversion into KRONA output format (estimate_abundance.sh)
 4. Abundance visualization in multi-layered pie charts (ktImportTaxonomy)
 
-Steps 2. - 4. had been applied to every quality enriched fastq file. Thereby, Paired-end and single-end files had been conducted separately.
+Steps 2. - 4. had been applied to every quality enriched fastq file. Thereby, Paired-end and single-end files had been conducted separately, leading to two separated classification files.
 For all three k-mers tested, the confidence threshold was set to the lowest possible of 0.5. The value is simply calculated by $\frac{hitcount1 + hitcount2}{hitcount1}$ (SOURCE). A low confidence score therefore might lead to lower sensitivity and thus to classification of database related unknown organisms (possibly ancient).
 The script can be applied as follows:
 ```
@@ -97,26 +97,32 @@ The script can be applied as follows:
 
 # Read Binning
 
-Each line of the  ``classify_metagenome.sh`` output assigns a read header identifier to the taxonomic identifier (NCBI TaxID) of the first two hits. The script ``TaxID_sci_names.py``  traces back every TaxID to its domain and output a comma separated file in the following format:
+The read extraction and binning consists of three steps:
+1. Assign the phylogenetic path (scientific names) to the first assignment (NCBI TaxID) of each read (``TaxID_sci_names.py``)
+2. Extract the viral, bacterial or non-assigned reads from quality enriched multip-fastq-files (``extract_reads_dicts.py``). This leads to three files per trimmed fastq file (e.g. SN7_1_1__allSE_trimmed.fastq --> SN7_1_1__allSE_viral.fastq, SN7_1_1__allSE_NA.fastq,SN7_1_1__allSE_bacteria.fastq)
+3. Pool the extracted reads of same taxonomic branch (viral, NA, bacteria) and read type (allSE, pair1, pair2) (``fromdict_extract_reads.sh``). This reduces the overall file number to 9 in total for the subsequent analyses.
 
-```
-read_header_ID,TaxID,taxon_path
-
-# for example:
-SN928_0068_BB022WACXX:1:1103:19311:49395,1982588,Edwardsiella virus KF1 > Kafunavirus > Podoviridae > Caudovirales > Viruses
-```
-The taxonomic paths were generated using the ``names.dmp`` and ``nodes.dmp`` files from the NCBI taxonomy structure [taxdumb.tar.gz](ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz). The functions ``get_dicts`` and ``get_tax_path`` were adapted from a custom python script provided by Florian Mock (Thanks!).
-Per classification output, three csv tables had been generated collecting the viral, the bacterial and non-assigned reads (NA reads). The script is used in a for loop over all CLARK assignments:
+The ``TaxID_sci_names.py`` translates NCBI taxonomy IDs (TaxIDs) into the pyhlogenetic paths of the corresponding scientific names. It utilizes the ``names.dmp`` and ``nodes.dmp`` files from the NCBI taxonomy structure [taxdumb.tar.gz](ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz). The functions ``get_dicts`` and ``get_tax_path`` were adapted from a custom python script provided by Florian Mock (Thanks!). Per classification output file, three text files had been generated collecting reads with a viral, NA, or bacterial first assignment.
 
 ```
 # iterate over all output csv files and get phylogenetic path
 for file in <path_to_classify_metagenome.sh_outputdir>/*.csv; do echo ${file}; ./scripts/TaxID_sci_names.py ${file}; done
 ```
 
-Secondly, the reads need to be extracted from the bulk (quality enriched fastq files). This is achieved using two files: ``extract_reads_dict.py`` and ``fromdict_extract_reads.sh``. For execution, the shell script is enough since it utilizes the python script. The first named generates one multi-fastq file per CLARK output file. Those are subsequently merged into three files per bin: pair1, pair2 and allSE. Just call the script simply like this:
+Generated text files share the structure:
+```
+<read_header_ID>,<TaxID>,<taxon_path>
+
+# for example:
+SN928_0068_BB022WACXX:1:1103:19311:49395,1982588,Edwardsiella virus KF1 > Kafunavirus > Podoviridae > Caudovirales > Viruses
+```
+
+Subsequently, ``extract_reads_dicts.py`` and ``fromdict_extract_reads.sh`` use the header IDs from those text files to extract the corresponding entries from quality enriched multi-fastq files.
+Note, that the shell script executes the python script for the per file extraction prior to merging as described.
 
 ```
 # all paths are specified in the file
 <path-to-script>/fromdict_extract_reads.sh
 ```
+
 
