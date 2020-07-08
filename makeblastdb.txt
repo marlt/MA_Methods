@@ -1,0 +1,39 @@
+####Download from NCBI
+
+wget ftp://ftp.ncbi.nih.gov/genomes/Viruses/all.fna.tar.gz  /mnt/fass1/genomes/Viruses/ncbi_viruses/20190724
+
+tar -xf all.fna.tar.gz
+
+mkdir /mnt/fass1/genomes/Viruses/ncbi_viruses/20190724/all_viruses_blastdb
+
+cat ./*/*fna > all_viruses_db.fa
+
+#### NCBI TaxIDs 
+wget ftp://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz
+
+tar -xf taxdb.tar.gz
+
+#### Accession ID to TaxID mapping
+##Download all AccessionID to TaxID mappings vailable
+
+# non - whole Genomes living
+wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/nucl_gb.accession2taxid.gz
+# genomes living
+wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/nucl_wgs.accession2taxid.gz
+# non -genomes dead
+wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/dead_gb.accession2taxid.
+# genomes dead
+wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/dead_nucl.accession2taxid.gz
+
+# gunzip -d on all 4 files!
+
+#Extract accession.version and TaxID column, concatenate into one file:
+
+sed '1 d' dead_nucl.accession2taxid | cut -f2,3  > accID_taxID_map.txt
+sed '1 d' dead_wgs.accession2taxid | cut -f 2,3  >> accID_taxID_map.txt
+sed '1 d' nucl_wgs.accession2taxid | cut -f 2,3 >> accID_taxID_map.txt
+sed '1 d' nucl_gb.accession2taxid | cut -f 2,3 >> accID_taxID_map.txt
+
+### Create blastDB
+makeblastdb -in all_viruses_db.fa -out all_viruses_ncbi -dbtype nucl -parse_seqids -taxid_map ./accID_taxID_map.txt
+
