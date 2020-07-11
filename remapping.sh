@@ -21,7 +21,7 @@ mkdir -p ${INDIR}/viral/bigger25/remapping/hisat2
 mkdir -p ${INDIR}/viral/bigger25/remapping/segemehl
 mkdir -p ${INDIR}/viral/bigger25/remapping/bwa/len300_cov10
 
-##### the HiSat2 mappings for viral reads > 25% GC had been created during asembly testings
+##### the HiSat2 mappings for viral reads > 25% GC had been created during assembly testings
 # HiSat2
 # echo "Processing VIRAL"
 # echo "Remapping with HISAT2..."

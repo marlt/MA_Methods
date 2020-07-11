@@ -1,7 +1,6 @@
 #!/home/ha74mit/bin/miniconda3/envs/anc_virus/bin/python3
 
-# DESCRIPTION
-# This script  filters reads from a given fastq file on a GC content threshold defined by the user
+# This script filters reads from a fastq file on a GC content threshold defined by the user
  
 # PACKAGES
 import argparse

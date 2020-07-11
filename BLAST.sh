@@ -13,6 +13,7 @@ echo "qseqid	qlen	qstart	qend	qseqid	sacc	staxid	ssciname	slen	length	sstart	sen
 # run actual blastn command - comparing nucleotides to nucleotides
 nice blastn -num_threads 40 -task megablast -query ${QUERY} -db ${DB} -out ${TMP}/tmp.csv -evalue 0.001 -max_target_seqs 1 -outfmt "6 qseqid qlen qstart qend qseq sacc staxid ssciname slen length sstart send score pident evalue qcovs" 
 
+# to include the table header
 cat ${TMP}/tmp.csv >> ${OUT}
 rm ${TMP}/tmp.csv
 
