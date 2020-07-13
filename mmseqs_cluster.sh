@@ -2,22 +2,22 @@
 
 # Script for clustering nucleotide sequences and extracting their representative sequences
 
-INFILE="$1" # Input Multi-Fasta File
-QUERYDB="$2"  # Dir to write query db to
-PRE="$3"      # Set the prefix for the querydb
-OUT="$4"      # Dir to write all output files to
-TMP="$5"   # dir for temporary files of clustering step
-CMODE="$6"   # Clustering mode, see parameter explanation
-COV="$7"     # Minimal Sequency Coverage of Alignment for Clustering Sequences
-EVAL="$8"    # Set E-Value threshold for alignment
+INFILE="$1"     # Input Multi-Fasta File
+QUERYDB="$2"    # Dir to write query db to
+PRE="$3"        # Set the prefix for the querydb
+OUT="$4"        # Dir to write all output files to
+TMP="$5"        # dir for temporary files of clustering step
+CMODE="$6"      # Clustering mode, see parameter explanation
+COV="$7"        # Minimal Sequency Coverage of Alignment for Clustering Sequences
+EVAL="$8"       # Set E-Value threshold for alignment
 
-mkdir -p ${QUERYDB}     # 
-mkdir -p ${OUT}         # Create the output path if not already present
-mkdir -p ${TMP}         # Create directory for temporary files
-mkdir -p ${OUT}/seqfiledb         # Create the output path if not already present
-mkdir -p ${OUT}/repdb         # Create the output path if not already present
+mkdir -p ${QUERYDB}         # Create query output directory
+mkdir -p ${OUT}             # Create the output path if not already present
+mkdir -p ${TMP}             # Create directory for temporary files
+mkdir -p ${OUT}/seqfiledb   # Create the output path if not already present
+mkdir -p ${OUT}/repdb       # Create the output path if not already present
 
-# Cluster Sequences and covnert mmseqs format into tsv
+# Cluster Sequences and convert mmseqs format into tsv
 nice mmseqs createdb ${INFILE} ${QUERYDB}/${PRE}
 nice mmseqs cluster ${QUERYDB}/${PRE} ${OUT}/clust ${TMP} -e ${EVAL} -c ${COV} --cov-mode ${CMODE} --threads 30
 nice mmseqs createtsv ${QUERYDB}/${PRE} ${QUERYDB}/${PRE} ${OUT}/clust ${OUT}/clust.tsv
@@ -29,13 +29,6 @@ nice mmseqs result2flat ${QUERYDB}/${PRE} ${QUERYDB}/${PRE} ${OUT}/seqfiledb/seq
 # Extract representatives - The sequence with highest connectivity of the cluster
 nice mmseqs createsubdb ${OUT}/clust ${QUERYDB}/${PRE} ${OUT}/repdb/repdb
 nice mmseqs convert2fasta ${OUT}/repdb/repdb ${OUT}/repdb/repdb.fasta
-# echo "Cluster tsv file:\n"
-# head ${OUT}/clust.tsv
-# echo "Cluster fasta fiel:\n"
-# head ${OUT}/seqfiledb/seqfiledb.fasta
-# echo "Representatives fasta:\n"
-# head ${OUT}/repdb/repdb.fasta
-
 
 # MMseqs Parameters:
 #   -e  e-value threshold for all-against-all sequence search

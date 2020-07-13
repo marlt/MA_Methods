@@ -1,26 +1,25 @@
 # MA_Methods
-This file shall supplement the Master's Thesis ``ENTER TITLE`` with detailed descriptions of all relevant commands and custom scripts. The structure is oriented on the Methods section which I recommend to conduct in case of uncertainties. Additional chapters are introduced if this is necessary to keep the pipeline character of the script explanations.
-The parameter functionality of utilized tools is described within the custom scripts, if present. Custom scripts implementing command line interfaces (CLI) are explained in place. If not described further, default tool settings apply.
+This file shall supplement the Master's Thesis ``ENTER TITLE`` with detailed descriptions of all relevant commands and custom scripts. The structure is oriented on the Methods section which I recommend to conduct in case of uncertainties. 
+<!-- Additional chapters are introduced if this is necessary to keep the pipeline character of the script explanations. -->
+The parameter functionality of utilized tools is described within the custom scripts, if present. Custom scripts implementing command line interfaces (CLI) are explained in place. If not described further, default settings apply.
 
-If not described any further, programs had been used in a conda environment for better version control and a conflict free dependency management. 
+The programs had been used in a conda environment for better version control and dependency management. 
 
 - ADD AN TABEL OF CONTENTS
-- 
-## Summary Workflow Description
-- TO DESCRIBE: How were the workflow graphics prepared?
-- 
+
 ## Data Preprocessing
 The input data had been downloaded using a recursive ``wget`` command:
 ```
 cd <Data_Directory>
 wget -r -np -nd http://cdna.eva.mpg.de/neandertal/altai/AltaiNeandertal/bam/unmapped_qualfail/
 
-Parameters:
--r  recursive download
--np exclude parent directories from download
--nd do not create directories on local drive
+# wget Parameters:
+#   -r  recursive download
+#   -np exclude parent directories from download
+#   -nd     o not create directories on local drive
 ```
-This command downloads all files present in the specified directory, in this case 33 bam files. Since the read names were unconveniently long, files had been given shorter, unique names (commands not shown). A filename mapping is provided here (LINK).
+
+This command downloads all files present in the specified directory, in this case 33 bam files. Since the read names were unconveniently long, files had been given shorter, unique names (commands not shown). A filename mapping is provided [here](LINK).
 
 ### Extraction of Input Reads
 
@@ -31,22 +30,22 @@ BAM="/data/fass2/reads/max_crass/homo_sapiens_neanderthalensis_altai_unmapped/"
 FASTQ="/data/fass2/reads/max_crass/homo_sapiens_neanderthalensis_altai_unmapped/fastq_MA"
 QC="/data/mahlzeitlocal/projects/ma_neander_assembly/anc_virus_MA/qual_reports/raw"
 
-<path_to_script>/fastq_pairedend.sh  "${BAM}" "${FASTQ}" "${QC}"
+<path-to-script>/fastq_pairedend.sh  "${BAM}" "${FASTQ}" "${QC}"
 ```
 
-Fastq files labelled 'unflag' correspond to merged read pairs that were generated elsewhere and explained in VERWEIS AUF THEORY. For convenience, singletons and unflagged reads had been merged and resulting fastq files receive the label "allSE" (commands not shown).
+Fastq files labelled 'unflag' correspond to merged read pairs generated for the [Neanderthal sequencing project](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4031459/) which is explained in the introductory section of the thesis. For convenience, singletons and unflagged reads had been merged and resulting fastq files receive the label "allSE" (commands not shown).
 
  
 ### Adapter Content Estimation
 
-Adapter sequences had been summarized in a multi-fasta file (with header), and additionally written to a text file (without header) for pattern matching automation. The files are provided elsewhere(LINK).
+Adapter sequences had been summarized in a multi-fasta file (with header), and additionally written to a text file (without header) for pattern matching automation. The files are provided [elsewhere] (LINK).
 The script ``rg_adapters.sh`` prints read counts and exact adapter matches per fastq file to a tab-separated table. Columns correspond to the adapter (and read counts) and lines to the fastq file. The script is executed as follows:
 
 ```
 INDIR="/data/fass2/reads/max_crass/homo_sapiens_neanderthalensis_altai_unmapped/fastq_MA"
 AD_BN="adapter_seqs"
 OUT="/data/fass2/reads/max_crass/homo_sapiens_neanderthalensis_altai_unmapped/fastq_MA/adapter_counts.tsv"
-<path_to_script>/rg_adapters.sh "${INDIR}" "${AD_BN}" "${OUT}"
+<path-to-script>/rg_adapters.sh "${INDIR}" "${AD_BN}" "${OUT}"
 ```
 
 
@@ -153,7 +152,7 @@ The assemblies had been generated using the ``cond_test.sh`` script. This script
 <path-to-script>/cond_test.sh
 ```
 
-Secondly, HiSat2 was executed on all generated assemblies to remap the original reads. For read corrected assembly runs, the corrected reads had been used. Additional had been calculated using the ``HiSat2_cond_test.sh``. Those are contig length and (un)mapped read counts (``samtools idxstats``), total remapping rates (``samtools flagstats``), and per base depth (``samtools depth``). 
+Secondly, HiSat2 was executed on all generated assemblies to remap the original reads. For read corrected assembly runs, the corrected reads had been used. Additional had been calculated using the ``HiSat2_cond_test.sh``. Those are contig length and (un)mapped read counts (``samtools idxstats``), total remapping rates (``samtools flagstat``), and per base depth (``samtools depth``). 
 
 ```
 <path-to-script>/HiSat2_cond_test.sh
@@ -165,6 +164,7 @@ The average depth per contig was computed from the sum of the per base depth in 
 ```
 <path-to-script>/seq_depth.py <samtools_depth_output.tsv>
 ```
+The output file is named extending the basename of the input file with "_coverage.tsv".
 
 Third, the contigs had been BLASTed on viral NCBI genome sequences, using the ``BLAST.sh``. For information on the previously build blastdb consider ``makeblastdb.txt``. The script can be executed like this:
 
@@ -234,7 +234,7 @@ metaspades.py --only-assembler -m 1500 -t 40 -1 <${INPATH}/all_bacteria_pair1_tr
 ```
 
 The read correction was disabled due to exhaustive memory consumption assinging a maximum of available RAM. Input reads were filtered on > 25% GC contents.
-The remapping was performed during the comparative [remapping evaluation](#remapping-evaluation). Bwa mem results had been considered for downstream analyses for all three data sets. Homology searches had been performed with mmseqs2, described in the [section below](#contig-homology-search-on-comprehensive-databases) 
+The remapping was performed during the comparative [remapping evaluation](#remapping-evaluation) on all three bins. Bwa mem results had been considered for downstream analyses for all three data sets. Homology searches had been performed with mmseqs2, described in the [section below](#contig-homology-search-on-comprehensive-databases) 
 
 
 ## Assembly Evaluation: Other Assemblers
@@ -261,19 +261,41 @@ Blast search and contig depth calculation was performed as described [before](#a
 
 ## Remapping Evaluation
 
-Different alignment tools had been tested on the viral and NA read sets using the chosen conditions from the assembly evaluations. The commands are summarized in ``remapping.sh``:
+Different alignment tools had been tested on the viral and NA read sets using the chosen conditions from the assembly evaluations. The commands are summarized in ``remapping.sh``. This script also includes samtools flagstat, idxstats and depth calculations.
 
 ```
 <path-to-script>/remapping.sh
 ```
+The remapping statistics had been read from the ``samtools flagstat`` output.
+For bwa mem and segemehl, paired-end reads and singletons/merged pairs had been remapped separately due to available options. Therefore, the remapping rates had to be summarized afterwards as well as the contig depths.
 
-The remapping statistics had been read from the ``samtools flagstats`` output.
-For bwa mem and segemehl, paired-end reads and singledtons/merged pairs had been remapped separately due to available options. The remapping rates had been summed afterwards. 
+The latter had been calculated as described [before](#assembly-evaluation-k-mer-sizes-and-read-correction) for PE and SE reads individuallyand merged with a command pipeline using ``join`` and ``awk``:
 
+```
+join -1 2 -2 2 <SE_coverage.tsv> <PE_coverage.tsv> | awk '{print $1 "\t"  $3+$5}' > <merged_coverage.tsv>
+
+```
+Susequently, contig lengths extracted with ``samtools idxstats`` and the average contig depths had been merged into a tab separated file using the script ``contig_deplen.py``:
+
+```
+<path-to-script>/contig_deplen.py <idxstat_output.tsv> <merged_coverage.tsv> <merged.tsv>
+```
 
 ## Contig Homology Search on Comprehensive Databases
 
-The viral, bacterial, fungal and human sequences had been downloaded from different sources:
+The contigs had been filtered requiring minimum 300 nt length and 10x average depth. A text file denoting the qualified contig identifiers had been generated from the merged length and depth table:
+
+```
+awk '($2>=10 && $3>=300)' <path-to-bin-assembly>/final_contigs_cov_length.tsv > <path-to-bin-assembly>/contig_names_cov10_len300.txt
+```
+The script ``filter_contigs.py`` writes the subset of fasta sequences to a multi fasta file:
+
+```
+<path-to-script>/filter_contigs.py <path-to-bin-assembly>/contig_names_cov10_len300.txt <path-to-bin-assembly>/contigs_len300_cov10.fasta
+```
+This fasta was adressed to homology search with Mmseqs2. 
+
+Viral, bacterial, fungal and human sequences had been downloaded from different sources:
 
 ```
 # Viral Sequences were obtained from a metagenomics pipeline provided by Dr. Martin Hoelzer (database still the latest version)
@@ -290,9 +312,7 @@ wget ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.28_GRC
 wget ftp://ftp.ncbi.nlm.nih.gov/refseq/release/fungi/fungi.*.genomic.fna.gz -P <fungi_dir>/fungi -o <fungi_dir>/fungi_wget.log
 
 ```
-
 All sequences had been merged into one fasta file:
-
 ```
 # GTDB bacteria - all representatives
 for file in <bacteria_dir>/*.fna; do cat ${file} >> <targetdb_dir>/all_sequences.fna; done
@@ -307,11 +327,11 @@ cat <virus_dir>/IMGVR_all_nucleotides.fna >> <targetdb_dir>/all_sequences.fna
 ```
 
 The homology search requires five steps: 
-1. query database creation
-2. target database creation
-3. target database indexing
-4. hiomology search
-5. results conversion into tsv format
+1. Query database creation
+2. Target database creation
+3. Target database indexing
+4. Homology search
+5. Results conversion into tsv format
 
 Those steps are summarized in the script ``mmseqs2.sh``:
 
@@ -327,14 +347,202 @@ Per query only the highest target hit was retained. This function is executed wi
 <path-to-script>/filter_mmseqs2.py <mmseqs_out.tsv> <mmseqs_out_unique.tsv>
 ```
 
-# Contig Clustering
+## Contig Clustering
 
-- describe the single steps
+Clustering with MMseqs requires several commands comprised in the script ``mmseqs_cluster.sh``. Those cover the following steps:
+
+1. Query Database creation
+2. Clustering 
+3. Clustering results conversion into tab separated format.
+4. Output cluster sequence information in fasta format.
+5. Cluster representative extraction to a multi-fasta file.
+
 ```
-
 <path-to-script>/mmseqs_cluster.sh <query.fasta> <querydb_dir> <prefix_querydb> <resultsdb_dir> <tmp_dir> 5 0.8 0.001 
+```
+
+To calculate the cluster sizes, a header file had been extracted from each cluster multi fasta file. 
+```
+awk '/>/ {print $0}' <path-to-cluster-results>/seqfiledb.fasta > <path-to-cluster-results>/headers.txt
+```
+The format indicates each new cluster by a single repetition of an header ID which is the representative of the cluster. Two repeated header IDs are filled with other headers belonging to one cluster. From this information, the cluster sizes was calculated with the script ``clustersizes.py``.
 
 ```
-- extract header file
-- clustersize calculation
-- cluster mmseqs assignment
+<path-to-script>/clustersizes.py <header_file.txt> <output.tsv>
+```
+The output is a two column tab separated file (representative, cluster size) where each line correspond to a new cluster. The file is sorted for descending clustersize.
+
+The cluster affiliation and homology information per contig had been comprised into a summarizing table. In this format, each line shows information on a particular contig, comprising contig length, average read depth and mmseqs target hit metrices (if no hits found, indicated as 'None'). Contig entries are intermitted with representative header IDs which indicate the start of a new cluster. This representative is indicated by a leading '>' character and gives further the information of affiliated contig number in the second column.
+
+Those files were generated with the ``contig_summary.py`` algorithm. The script takes as input the unique mmseqs hit file, the contig length, depth tsv and the cluster header txt:
+
+```
+<path-to-script>/contig_summary.py -cl <path-to-assembly-dir>final_contigs_cov_length.csv -ci <path-to-cluster-results>/header.txt -m <path-to-mmseqs-results>/contigs_len300_cov10_unique.tsv -o <outpath>/contig_cluster_hits.tsv
+```
+
+## Clustering on Target Hit IDs
+
+MMseqs2 search results of viral, NA and bacterial read bin contigs had been clustered on hit target IDs. This was performed on the target hits with highest bit score ("unique" MMseqs2 results). The script ``cluster_taxes.py`` implements this approach going once through the list of all query records in the unique MMseqs2 output tsv. It checks for first occurence of the corresponding target ID or appends the its cluster. Thereby, the number of contigs per cluster is counted and the cumulative contig length calculated:
+
+```
+<path-to-script>/cluster_taxes.py <mmseqs_unique.tsv> <targetID_clusters.tsv>
+# Output format is:
+# targetID    contig_counts     target_sciname  cum_contig_len  mean_contig_len
+```
+
+This list is already sorted for descending cumulative contig lengths of the hits.
+
+## Selection of Ancient Candidate Reference Sequences
+
+The 1000 target ID clusters with highest cumulative contig lengths had been appended on average homology search measures of belonging contigs. To achieve this, the script ``top_hitstats.py`` calculates these mean values from the combining contig clustering and MMseqs2 hit tsv and the target ID clusters. A third parameter defines the number of clusters to process going through the list linewise (sorting was performed, therefore). The output is generated in tsv format, too:
+
+```
+<path-to-script>/top_hitstats.py -i <targetID_clusters.tsv> -m <contig_cluster_hits.tsv> -n 1000 -o <top_hit_stats.tsv>
+```
+
+The upper 1000 target cluster IDs from viral, NA and bacterial homology searches had been consulted for manual selection of promising ancient candidate reference sequences. From those, the target hits with highest cumulative contig lengths had been selected. Further criterions had been considered for candidate selection:
+1. For high query coverage (from roughly 70%), the sequence identity was moderate (~ 70 - 80 %).
+2. In case of the viral target ID clustering, from rare viral target clusters, the upper most three targets had been selected.
+
+Of note, the candidate selection was done manually on the given criteria. No further systematic filtering could be applied. The candidate lists therefore are a subjective selection. 
+
+The candidate target IDs had been written to a text file to guide the extraction of their corresponding fasta sequences from the bulk database fasta (created for MMseqs search, explained [here](#contig-homology-search-on-comprehensive-databases)). The script ``sub_target_extraction.py`` serves for this purpose:
+
+```
+<path-to-script>/sub_target_extraction.sh <candidate_IDs.txt>
+```
+
+Each identified fasta record is written to an individual fasta file. The output path was changed for viral, NA, or bacterial read bin candidate references.
+
+## Creating a Microbacterium Consensus Sequence
+
+To demonstrate the consensus approach, 30 microbacterium target IDs with highest cumulative contig lengths had been extracted from the bacterial target ID clustering. The following command (rip)greps for the key word 'Microbacterium' which might occur on the 'scientific name' column. Doing this, the sequence space for the consensus construction is restricted to the microbacterium genus.
+
+```
+rg 'Microbacterium' <targetID_clusters.tsv>  > <path-to-consensus-dir>/microbacteirum_headers.txt | head -n 30 | cut -f1 > <path-to-consensus-dir>/microbac_30_IDs.txt
+```
+
+Cactus requires phylogenetic pre-knowledge of the input sequences. To approximate the microbacterium sequence relation 16S rRNA sequences had been utilized instead of the entire sequence records. Those had been obtained from the GTDB taxonomy which is based on the 16S rRNAs of taxonomically incorporated database sequences.
+
+```
+# get the 16S rRNA sequences from GTDB taxonomy
+wget https://data.ace.uq.edu.au/public/gtdb/data/releases/latest/ssu.fna
+
+# extract the 16S header sequences that correspond to the microbacterial genomes
+rg -f microbac_30_IDs.txt ssu.fna > microbac_16S_headers.txt
+```
+Only primary hits were considered, for example:
+```
+# hits on the same microbacterial ID:
+>RS_GCF_001314225.1~NZ_CP012697.1           -> this was considered for tree construction
+>RS_GCF_001314225.1~NZ_CP012697.1-#2
+```
+
+From 30 microbacterial IDs, 10 showed a corresponding 16S rRNA within the taxonomy. The fasta records of those had been extracted using ``sub_target_extraction.py`` (bulk fasta path was changed to the ``ssu.fna``). The rRNA fasta sequences had been merged into one multi-fasta file. From this, a MSA was generated using MAFFT g-ins-i. This command is recommended for sequences of similar length. MAFFT generally aligns sequences on their fast Fourier transformation on volume and polarity range. This approach makes it faster than clustalW, for example.
+
+```
+# merge rRNA fastas
+for seq in <path-to-fastas>/*.fasta; do cat ${seq} >> <path-to-fastas>/all_microbac_ssu.fasta; done
+
+# create MSA
+nice ginsi --thread 40 <path-to-fastas>/all_microbac_ssu.fasta > <path-to-fastas>/all_microbac_ssu_msa.fasta
+```
+
+From this, a phylogenetic tree was constructed with fasttree based on maximum likelihood estimations of nearest-neighbor interchanges and the minimum-evolution criterion:
+
+```
+fasttree <path-to-fastas>/all_microbac_ssu_msa.fas > <path-to-tree>/all_microbac_ssu_msa.tree
+```
+The full microbacterium sequences with identified rRNA records had been extracted to individual fasta files using the ``sub_target_extraction.py``. The header had been truncated to consist only of the target IDs:
+
+```
+sed -i 's/ Microbacterium.*//' <microbacterium.fasta
+```
+
+The phylogeny is structured in newick format. For cactus input, the rRNA header IDs in the pyhlogeny had to be trimmed to the exact microbacterial genome header. Beneath the altered newick tree, the modified IDs are matched to the corresponding microbaterium fasta path. The final input file looks like this:
+
+```
+(BDCY01000002.1:0.003203152,NZ_CP025422.1:0.005458557,((NZ_JHET01000001.1:0.000000005,NZ_JHET01000006.1:0.000000005)0.997:0.012483338,(NZ_PDJE01000001.1:0.052728170,(NZ_LMGU01000001.1:0.002956147,(NZ_FNRY01000001.1:0.029714099,(NZ_CP012697.1:0.020212651,(NZ_CP019892.1:0.011022607,NZ_LT629770.1:0.001496155)0.993:0.010784790)0.988:0.022530779)1.000:1.243046039)0.931:0.016352431)0.962:0.009052175)0.759:0.004973046);
+
+BDCY01000002.1 /data/fass2/projects/ma_neander_assembly/MA_data/consensus/microbacterium/genomes/BDCY01000002.1.fasta 
+NZ_CP025422.1 /data/fass2/projects/ma_neander_assembly/MA_data/consensus/microbacterium/genomes/NZ_CP025422.1.fasta 
+NZ_JHET01000001.1 /data/fass2/projects/ma_neander_assembly/MA_data/consensus/microbacterium/genomes/NZ_JHET01000001.1.fasta
+NZ_JHET01000006.1 /data/fass2/projects/ma_neander_assembly/MA_data/consensus/microbacterium/genomes/NZ_JHET01000006.1.fasta
+NZ_PDJE01000001.1 /data/fass2/projects/ma_neander_assembly/MA_data/consensus/microbacterium/genomes/NZ_PDJE01000001.1.fasta
+NZ_LMGU01000001.1 /data/fass2/projects/ma_neander_assembly/MA_data/consensus/microbacterium/genomes/NZ_LMGU01000001.1.fasta
+NZ_FNRY01000001.1 /data/fass2/projects/ma_neander_assembly/MA_data/consensus/microbacterium/genomes/NZ_FNRY01000001.1.fasta
+NZ_CP012697.1 /data/fass2/projects/ma_neander_assembly/MA_data/consensus/microbacterium/genomes/NZ_CP012697.1.fasta
+NZ_CP019892.1 /data/fass2/projects/ma_neander_assembly/MA_data/consensus/microbacterium/genomes/NZ_CP019892.1.fasta
+NZ_LT629770.1 /data/fass2/projects/ma_neander_assembly/MA_data/consensus/microbacterium/genomes/NZ_LT629770.1.fasta
+```
+
+Cactus was installed from precompiled binaries following the instructions in the [github repo](https://github.com/ComparativeGenomicsToolkit/cactus/blob/v1.0.0/BIN-INSTALL.md). The [latest cactus release](https://github.com/ComparativeGenomicsToolkit/cactus/blob/v1.0.0/BIN-INSTALL.md) was utilized.
+Cactus was set up to run in a virtual environment:
+
+```
+source venv/bin/activate
+cactus jobStore <path-to-consensus>/microbacteria_input.txt <path-to-consensus>/10microbacteria_msa.hal --maxCores 30 --maxMemory 500G --defaultMemory 15G 
+
+# cactus parameters:
+#   --maxCores      number of threads to use
+#   --maxMemory     memory limit to be assigned by cactus
+#   --defaultMemory default memory per sub-task
+```
+
+The output in `hal` format is efficient but not human readable. The ``hal2maf`` tool comes along with cactus and was used to convert the alignment in human readable multiple alignment format (MAF). 
+
+```
+hal2maf <path-to-consensus>/10microbacteria_msa.hal <path-to-consensus>/10microbacteria_msa.maf
+```
+
+With default settings, ``hal2maf`` writes the alignment referenced to root. This root sequence can be considered as consensus. The sequence record was parsed to a fasta file with ``maf_to_cons.py``. 
+
+```
+<path-to-consensus>/maf_to_cons.py <path-to-consensus>/10microbacteria_msa.maf <path-to-consensus>/consensus.fasta
+```
+
+## Damage Pattern Analysis
+
+Extracted candidate sequences and the generated consensus served as reference sequences in read mappings using ``bwa aln`` and ``bwa samse``:
+
+```
+# Indexing References
+nice bwa index -p <ref_index_prefix> <ref.fasta> &> <indexing.log>
+
+# Mapping with bwa aln
+nice bwa aln -t 30 -n 0.01 -o 2 -l 16500 <ref_index_prefix> <single_end_reads.fasta> > <alignment.sai> 2> <alignment.log>
+
+# Converting from index to SAM
+nice bwa samse <ref_index_prefix> <alignment.sai> > <alignment.sam>
+
+# BWA Parameters:
+#   -p  prefix of sequence database
+#   -n  fraction of missing alignments giving a 2% base error rate
+#   -t  threads to use
+#   -o  number of allowed gaps
+#   -l  seeding length 
+```
+The mapping rates had been generated with ``samtools flagstat`` as described before.
+
+Each candidate was selected from an target ID clustering that originated from the homology search of one set of read bin contigs (viral, NA, bacteria). Those read bins had only been mapped to candidates from the corresponding clustering. 
+From remappings, substitution frequencies and base damage probability estimations were calculated using the ``mapdamage2`` package:
+
+```
+# PE mapping
+mapDamage -i <alignment_PE.sam> -r <ref.fasta> -d <output_dir> -l 95
+
+# allSE mapping:
+mapDamage -i <alignment_SE.sam> -r <ref.fasta> -d <output_dir> -l 43
+
+# Mapdamage Parameters:
+#   -i  input mapping file in SAM format
+#   -r  used reference sequence in fasta format 
+#   -d  output directory for all output files; generated if not present
+#   -l  length of the reads to assess
+```
+
+The read length was selected from the quality reports of the > 25% GC conntaining fastq files from the viral, NA, and bacterial bin.
+
+
+
+# Visualization with Matplotlib
