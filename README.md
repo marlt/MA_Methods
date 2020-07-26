@@ -546,3 +546,5 @@ The read length was selected from the quality reports of the > 25% GC conntainin
 
 
 # Visualization with Matplotlib
+
+Charts and plots had been generated with functions from the ``matplotlib`` python library. For that, the data had been parsed into suitable text-based formatting to generate a graphical output. Some figure captions had been modified using the inkscape (v0.92.4) software for better overview. The method summary flowcharts had been generated on the free ``drawio`` online platform.
