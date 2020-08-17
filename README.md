@@ -1,11 +1,29 @@
 # MA_Methods
-This file shall supplement the Master's Thesis ``ENTER TITLE`` with detailed descriptions of all relevant commands and custom scripts. The structure is oriented on the Methods section which I recommend to conduct in case of uncertainties. 
+This file shall supplement the Master's Thesis ``Identifying Bacteria and Viruses
+from an Ancient Metagenomic Sample`` with detailed descriptions of all relevant commands and custom scripts. The structure is oriented on the Methods section which I recommend to conduct in case of uncertainties. 
 <!-- Additional chapters are introduced if this is necessary to keep the pipeline character of the script explanations. -->
 The parameter functionality of utilized tools is described within the custom scripts, if present. Custom scripts implementing command line interfaces (CLI) are explained in place. If not described further, default settings apply.
 
 The programs had been used in a conda environment for better version control and dependency management. 
 
-- ADD AN TABEL OF CONTENTS
+# Contents
+[Data Preprocessing](#data-preprocessing)
+[Extraction of Input Reads](#extraction-of-input-reads)
+[Adapter Content Estimation](#adapter-content-estimation)
+[Quality Enrichment](#quality-enrichment)
+[K-mer based Read Classification](#k-mer-based-read-classification)
+[Read Binning](#read-binning)
+[Assembly Evaluation: K-mer Sizes and Read Correction](#assembly-evaluation-k-mer-sizes-and-read-correction)
+[Assembly Evaluation: Input Library and Assembler Subtype](#assembly-evaluation-input-library-and-assembler-subtype)
+[Assembly Evaluation: Contiguity and GC Filtering](#assembly-evaluation-contiguity-and-gc-filtering)
+[Final Assembly Set Up](#final-assembly-set-up)
+[Contig Homology Search on Comprehensive Databases](#contig-homology-search-on-comprehensive-databases)
+[Contig Clustering](#contig-clustering)
+[Clustering on Target Hit IDs](#clustering-on-target-hit-ids)
+[Selection of Ancient Candidate Reference Sequences](#selection-of-ancient-candidate-reference-sequences)
+[Creating a Microbacterium Consensus Sequence](#creating-a-microbacterium-consensus-sequence)
+[Damage Pattern Analysis](#damage-pattern-analysis)
+[Visualization with Matplotlib](#visualization-with-matplotlib)
 
 ## Data Preprocessing
 The input data had been downloaded using a recursive ``wget`` command:
@@ -19,7 +37,7 @@ wget -r -np -nd http://cdna.eva.mpg.de/neandertal/altai/AltaiNeandertal/bam/unma
 #   -nd     o not create directories on local drive
 ```
 
-This command downloads all files present in the specified directory, in this case 33 bam files. Since the read names were unconveniently long, files had been given shorter, unique names (commands not shown). A filename mapping is provided [here](LINK).
+This command downloads all files present in the specified directory, in this case 33 bam files. Since the read names were unconveniently long, files had been given shorter, unique names (commands not shown). A filename mapping is provided [here](https://osf.io/qbreu/files/).
 
 ### Extraction of Input Reads
 
