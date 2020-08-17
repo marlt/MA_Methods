@@ -73,7 +73,7 @@ Fastq files labelled 'unflag' correspond to merged read pairs generated for the 
  
 ### Adapter Content Estimation
 
-Adapter sequences had been summarized in a multi-fasta file (with header), and additionally written to a text file (without header) for pattern matching automation. The files are provided [elsewhere] (LINK).
+Adapter sequences had been summarized in a multi-fasta file (with header), and additionally written to a text file (without header) for pattern matching automation.
 The script ``rg_adapters.sh`` prints read counts and exact adapter matches per fastq file to a tab-separated table. Columns correspond to the adapter (and read counts) and lines to the fastq file. The script is executed as follows:
 
 ```
@@ -100,8 +100,6 @@ Quality enrichment was performed using different filter and trimming options pro
 10. adapter trimming, provided a multi-fasta with adapter sequences
 11. minimum read length of 20 nt (after trimming)
 
-(The reasoning of the chosen settings can be read in the thesis' methods (LINK).)
-
 The script ``trimming.sh`` conducts paired-end trimming (for intact pairs) and single-end trimming (singletons + merged) separately. Output fastq files are generated in accordance to input file names + the "trimmed" name extension. Resulting singletons are kept and quality-failed reads are written to an individual directory. This leads to a total of 5 qualified (allSE, pair1, pair2, unpair1, unpair2) and two unqualified multi-fasta files per input bam. After trimming, each file quality is reported using fastqc. 
 The following command is demanded:
 
@@ -123,7 +121,7 @@ The script ``clark_classification.sh`` wraps all steps for the k-mer classificat
 4. Abundance visualization in multi-layered pie charts (ktImportTaxonomy)
 
 Steps 2. - 4. had been applied to every quality enriched fastq file. Thereby, Paired-end and single-end files had been conducted separately, leading to two separated classification files.
-For all three k-mers tested, the confidence threshold was set to the lowest possible of 0.5. The value is simply calculated by $\frac{hitcount1 + hitcount2}{hitcount1}$ (SOURCE). A low confidence score therefore might lead to lower sensitivity and thus to classification of database related unknown organisms (possibly ancient).
+For all three k-mers tested, the confidence threshold was set to the lowest possible of 0.5. The value is simply calculated by $\frac{hitcount1 + hitcount2}{hitcount1}$ [see CLARK paper](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-015-1419-2/tables/2). A low confidence score therefore might lead to lower sensitivity and thus to classification of database related unknown organisms (possibly ancient).
 The script can be applied as follows:
 ```
 <path_to_script>/clark_classification.sh
@@ -213,7 +211,7 @@ cd <targetdb_dir>/taxonomy
 sort -u -k1,1  <raw_blastout.csv> | sort -rnk2,2 > <tmp.csv>; cat <tmp.csv> > <blastout_unique.csv>; rm <tmp.csv> 
 ```
 
-The output table contains a comma-separated list in the format specified in the script. Only queries with target hits are reported. From this, the fraction of contigs with target hits (of different similarity degree, of course) was calculated divided . Note, that blastn was used in megablast modus which is designed for very similar sequences. This is fine for now as we are rather interested in comparing the hit count fractions of different assemblies. For the qualitative search this approach is not used (see below LINK) and replaced with an MMSEQS approach.
+The output table contains a comma-separated list in the format specified in the script. Only queries with target hits are reported. From this, the fraction of contigs with target hits (of different similarity degree, of course) was calculated divided . Note, that blastn was used in megablast modus which is designed for very similar sequences. This is fine for now as we are rather interested in comparing the hit count fractions of different assemblies. For the qualitative search this approach is not used and replaced with an MMSEQS approach.
 
 
 ## Assembly Evaluation: Input Library and Assembler Subtype
@@ -491,7 +489,7 @@ fasttree <path-to-fastas>/all_microbac_ssu_msa.fas > <path-to-tree>/all_microbac
 The full microbacterium sequences with identified rRNA records had been extracted to individual fasta files using the ``sub_target_extraction.py``. The header had been truncated to consist only of the target IDs:
 
 ```
-sed -i 's/ Microbacterium.*//' <microbacterium.fasta
+sed -i 's/ Microbacterium.*//' <microbacterium.fasta>
 ```
 
 The phylogeny is structured in newick format. For cactus input, the rRNA header IDs in the pyhlogeny had to be trimmed to the exact microbacterial genome header. Beneath the altered newick tree, the modified IDs are matched to the corresponding microbaterium fasta path. The final input file looks like this:
