@@ -19,8 +19,7 @@ The programs had been used in a conda environment for better version control and
 
 [Read Binning](#read-binning)
 
-[Assembly Evaluation: K-mer Sizes and Read Correction]
-(#assembly-evaluation-k-mer-sizes-and-read-correction)
+[Assembly Evaluation: K-mer Sizes and Read Correction](#assembly-evaluation-k-mer-sizes-and-read-correction)
 
 [Assembly Evaluation: Input Library and Assembler Subtype](#assembly-evaluation-input-library-and-assembler-subtype)
 
