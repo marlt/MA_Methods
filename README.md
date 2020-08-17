@@ -8,22 +8,40 @@ The programs had been used in a conda environment for better version control and
 
 # Contents
 [Data Preprocessing](#data-preprocessing)
+
 [Extraction of Input Reads](#extraction-of-input-reads)
+
 [Adapter Content Estimation](#adapter-content-estimation)
+
 [Quality Enrichment](#quality-enrichment)
+
 [K-mer based Read Classification](#k-mer-based-read-classification)
+
 [Read Binning](#read-binning)
-[Assembly Evaluation: K-mer Sizes and Read Correction](#assembly-evaluation-k-mer-sizes-and-read-correction)
+
+[Assembly Evaluation: K-mer Sizes and Read Correction]
+(#assembly-evaluation-k-mer-sizes-and-read-correction)
+
 [Assembly Evaluation: Input Library and Assembler Subtype](#assembly-evaluation-input-library-and-assembler-subtype)
+
 [Assembly Evaluation: Contiguity and GC Filtering](#assembly-evaluation-contiguity-and-gc-filtering)
+
 [Final Assembly Set Up](#final-assembly-set-up)
+
 [Contig Homology Search on Comprehensive Databases](#contig-homology-search-on-comprehensive-databases)
+
 [Contig Clustering](#contig-clustering)
+
 [Clustering on Target Hit IDs](#clustering-on-target-hit-ids)
+
 [Selection of Ancient Candidate Reference Sequences](#selection-of-ancient-candidate-reference-sequences)
+
 [Creating a Microbacterium Consensus Sequence](#creating-a-microbacterium-consensus-sequence)
+
 [Damage Pattern Analysis](#damage-pattern-analysis)
+
 [Visualization with Matplotlib](#visualization-with-matplotlib)
+
 
 ## Data Preprocessing
 The input data had been downloaded using a recursive ``wget`` command:
