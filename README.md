@@ -121,7 +121,7 @@ The script ``clark_classification.sh`` wraps all steps for the k-mer classificat
 4. Abundance visualization in multi-layered pie charts (ktImportTaxonomy)
 
 Steps 2. - 4. had been applied to every quality enriched fastq file. Thereby, Paired-end and single-end files had been conducted separately, leading to two separated classification files.
-For all three k-mers tested, the confidence threshold was set to the lowest possible of 0.5. The value is simply calculated by $\frac{hitcount1 + hitcount2}{hitcount1}$ [see CLARK paper](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-015-1419-2/tables/2). A low confidence score therefore might lead to lower sensitivity and thus to classification of database related unknown organisms (possibly ancient).
+For all three k-mers tested, the confidence threshold was set to the lowest possible of 0.5. The value is simply calculated by $\frac{hitcount1 + hitcount2}{hitcount1}$ [(see CLARK paper)](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-015-1419-2/tables/2). A low confidence score therefore might lead to lower sensitivity and thus to classification of database related unknown organisms (possibly ancient).
 The script can be applied as follows:
 ```
 <path_to_script>/clark_classification.sh
@@ -246,30 +246,27 @@ HiSat2 remapping was performed in ``HiSat2_GCfilter.sh``
 
 Blast search and contig depth calculation was performed as described [before](#assembly-evaluation-k-mer-sizes-and-read-correction).
 
-## Final Assembly Set Up
+## Remapping Evaluation
 
-The viral and NA read assemblies had been chosen from the [Contiguity and GC Filtering Evaluation](#assembly-evaluation-contiguity-and-gc-filtering). The missing bacterial assembly was generated with the following command:
+Different alignment tools had been tested on the viral set using the chosen conditions from the assembly evaluations. The commands are summarized in ``remapping.sh``. This script also includes samtools flagstat, idxstats and depth calculations.
 
 ```
-INPATH=<path-to-reads_bigger25%GC>
-OUT=<outpath>
-
-metaspades.py --only-assembler -m 1500 -t 40 -1 <${INPATH}/all_bacteria_pair1_trimmed_filterGC.fastq> -2 "${INPATH}/all_bacteria_pair2_trimmed_filterGC.fastq"  --merged "${INPATH}/all_bacteria_allSE_trimmed_filterGC.fastq" -k 15,21,27,33,39,45,51,57,63,69,75,81,87,93,99,105,111,117,123,127 -o "${OUT}/" &> "${OUT}/bacteria/bigger25/bacteria_bigger25.log" 
-
-# metaSPAdes Parameter:
-#   --only-assembler    runs only the assembler, read correction disabled
-#   -t  number of threads to use
-#   -1  specify pair1 input reads
-#   -2  specify pair2 input reads
-#   --merged    specify merged input reads
-#   -k  list of k-mers to use for assembly graph construction
-#   -o  output directory
+<path-to-script>/remapping.sh
 ```
+The remapping statistics had been read from the ``samtools flagstat`` output.
+For bwa mem and segemehl, paired-end reads and singletons/merged pairs had been remapped separately due to available options. Therefore, the remapping rates had to be summarized afterwards as well as the contig depths.
 
-The read correction was disabled due to exhaustive memory consumption assinging a maximum of available RAM. Input reads were filtered on > 25% GC contents.
-The remapping was performed during the comparative [remapping evaluation](#remapping-evaluation) on all three bins. Bwa mem results had been considered for downstream analyses for all three data sets. Homology searches had been performed with mmseqs2, described in the [section below](#contig-homology-search-on-comprehensive-databases) 
+The latter had been calculated as described [before](#assembly-evaluation-k-mer-sizes-and-read-correction) for PE and SE reads individually and merged with a command pipeline using ``join`` and ``awk``:
 
+```
+join -1 2 -2 2 <SE_coverage.tsv> <PE_coverage.tsv> | awk '{print $1 "\t"  $3+$5}' > <merged_coverage.tsv>
 
+```
+Susequently, contig lengths extracted with ``samtools idxstats`` and the average contig depths had been merged into a tab separated file using the script ``contig_deplen.py``:
+
+```
+<path-to-script>/contig_deplen.py <idxstat_output.tsv> <merged_coverage.tsv> <merged.tsv>
+```
 ## Assembly Evaluation: Other Assemblers
 
 Megahit was executed on the viral and NA read set using equivalent conditions as for metaSPAdes (PE + merged reads > 25% GC, k-mers set to list, remapping with bwa mem). The assembly was executed with ``megahit.sh``:
@@ -291,28 +288,28 @@ Remapped read counts per contig, contig length and per base depth was calculated
 
 Blast search and contig depth calculation was performed as described [before](#assembly-evaluation-k-mer-sizes-and-read-correction).
 
+## Final Assembly Set Up
 
-## Remapping Evaluation
-
-Different alignment tools had been tested on the viral and NA read sets using the chosen conditions from the assembly evaluations. The commands are summarized in ``remapping.sh``. This script also includes samtools flagstat, idxstats and depth calculations.
-
-```
-<path-to-script>/remapping.sh
-```
-The remapping statistics had been read from the ``samtools flagstat`` output.
-For bwa mem and segemehl, paired-end reads and singletons/merged pairs had been remapped separately due to available options. Therefore, the remapping rates had to be summarized afterwards as well as the contig depths.
-
-The latter had been calculated as described [before](#assembly-evaluation-k-mer-sizes-and-read-correction) for PE and SE reads individuallyand merged with a command pipeline using ``join`` and ``awk``:
+The viral and NA read assemblies had been chosen due to the [Contiguity and GC Filtering Evaluation](#assembly-evaluation-contiguity-and-gc-filtering). The missing bacterial assembly was generated with the following command:
 
 ```
-join -1 2 -2 2 <SE_coverage.tsv> <PE_coverage.tsv> | awk '{print $1 "\t"  $3+$5}' > <merged_coverage.tsv>
+INPATH=<path-to-reads_bigger25%GC>
+OUT=<outpath>
 
-```
-Susequently, contig lengths extracted with ``samtools idxstats`` and the average contig depths had been merged into a tab separated file using the script ``contig_deplen.py``:
+metaspades.py --only-assembler -m 1500 -t 40 -1 <${INPATH}/all_bacteria_pair1_trimmed_filterGC.fastq> -2 "${INPATH}/all_bacteria_pair2_trimmed_filterGC.fastq"  --merged "${INPATH}/all_bacteria_allSE_trimmed_filterGC.fastq" -k 15,21,27,33,39,45,51,57,63,69,75,81,87,93,99,105,111,117,123,127 -o "${OUT}/" &> "${OUT}/bacteria/bigger25/bacteria_bigger25.log" 
 
+# metaSPAdes Parameter:
+#   --only-assembler    runs only the assembler, read correction disabled
+#   -t  number of threads to use
+#   -1  specify pair1 input reads
+#   -2  specify pair2 input reads
+#   --merged    specify merged input reads
+#   -k  list of k-mers to use for assembly graph construction
+#   -o  output directory
 ```
-<path-to-script>/contig_deplen.py <idxstat_output.tsv> <merged_coverage.tsv> <merged.tsv>
-```
+
+The read correction was disabled due to exhaustive memory consumption assinging a maximum of available RAM. Input reads were filtered on > 25% GC contents.
+The remapping was performed during the comparative [remapping evaluation](#remapping-evaluation) on all three bins. Bwa mem results had been considered for downstream analyses for all three data sets. Homology searches had been performed with mmseqs2, described in the [section below](#contig-homology-search-on-comprehensive-databases) 
 
 ## Contig Homology Search on Comprehensive Databases
 
